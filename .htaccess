@@ -1,0 +1,358 @@
+Options +FollowSymLinks -MultiViews
+ErrorDocument 404 /warning/notfound
+
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+  # Check if browser supports WebP images
+
+RewriteRule ^(.*)/$ /$1 [L,R=301] # live site use
+
+RewriteRule ^play/(.*)-(.*).html$ play.php?slug=$1&id=$2
+RewriteRule ^page/(.*)-(.*).html$ page.php?slug=$1&id=$2
+RewriteRule ^category/(.*)$ category.php?name=$1
+RewriteRule ^user/(.*)$ profile.php?name=$1
+RewriteRule ^game/(.*)/(.*)$ game.php?do=$1&id=$2
+RewriteRule ^game/(.*)$ game.php?do=$1
+RewriteRule ^panel/(.*)/(.*)/(.*)$ panel.php?page=$1&type=$2&id=$3
+RewriteRule ^panel/(.*)/(.*)$ panel.php?page=$1&type=$2
+RewriteRule ^panel/(.*)$ panel.php?show=$1
+RewriteRule ^login/(.*)/(.*)$ login.php?type=$1&code=$2
+RewriteRule ^login/(.*)$ system/external/OAuth/login.php?app=$1
+RewriteRule ^embed/game/(.*)$ api.php?type=game_embed&id=$1
+RewriteRule ^api/user/(.*)$ api.php?type=user_data&id=$1
+RewriteRule ^gamefeed/(.*)$ api.php?type=game_feed&$1
+RewriteRule ^gamefeed$ api.php?type=game_feed
+RewriteRule ^language/(.*)$ language.php?code=$1
+RewriteRule ^forgot/(.*)/(.*)/(.*)$ forgot.php?do=$1&forgotcode=$2&email=$3
+RewriteRule ^arcanox/(.*)/(.*)$ arcanox.php?type=$1&password=$2
+RewriteRule ^warning/(.*)$ error.php?type=$1
+RewriteRule ^search/(.*)$ search.php?s=$1
+RewriteRule ^register/(.*)$ register.php$1
+RewriteRule ^system/language.js$ system/external/language.php
+RewriteRule ^system/captcha.png$ system/external/captcha.php
+RewriteRule ^warning$ error.php
+RewriteRule ^pending$ pending.php
+RewriteRule ^panel$ panel.php
+RewriteRule ^favorites$ favorites.php
+RewriteRule ^settings$ settings.php
+RewriteRule ^profile$ profile.php
+RewriteRule ^leaderboard$ leaderboard.php
+RewriteRule ^challenge$ challenge.php
+RewriteRule ^login$ login.php
+RewriteRule ^forgot$ forgot.php
+RewriteRule ^register$ register.php
+RewriteRule ^logout$ logout.php
+
+  RewriteCond %{HTTP_ACCEPT} image/webp
+
+  # Check if WebP replacement image exists
+  RewriteCond %{DOCUMENT_ROOT}/$1.webp -f
+# RewriteRule ^(.*)/$ /$1 [L,R] # localhost
+  # Serve WebP image instead
+  RewriteRule (.+)\.(jpe?g|png)$ $1.webp [T=image/webp]
+</IfModule>
+
+
+
+<IfModule mod_setenvif.c>
+  # Vary: Accept for all the requests to jpeg and png
+  SetEnvIf Request_URI "\.(jpe?g|png)$" REQUEST_image
+</IfModule>
+
+
+
+<IfModule mod_deflate.c>
+
+    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
+    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
+    RewriteRule "^(.*)\.(css|js)"         "$1\.$2\.gz" [QSA]
+
+    # Serve correct content types, and prevent mod_deflate double gzip.
+    RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1]
+    RewriteRule "\.js\.gz$"  "-" [T=text/javascript,E=no-gzip:1]
+
+
+    <FilesMatch "(\.js\.gz|\.css\.gz)$">
+      # Serve correct encoding type.
+      Header append Content-Encoding gzip
+
+      # Force proxies to cache gzipped &
+      # non-gzipped css/js files separately.
+      Header append Vary Accept-Encoding
+       </FilesMatch>
+    # Compactar por tipo - html, text, css, xml
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+
+    # Compactar por tipo - javascript
+    AddOutputFilterByType DEFLATE application/x-javascript application/javascript text/javascript text/x-js text/x-javascript
+
+    # Compactar por extensão
+    AddOutputFilter DEFLATE js css htm html xml ttf eot
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE text/javascript
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE image/x-icon
+AddOutputFilterByType DEFLATE image/svg+xml
+AddOutputFilterByType DEFLATE application/rss+xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/x-javascript
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE application/x-font
+AddOutputFilterByType DEFLATE application/x-font-truetype
+AddOutputFilterByType DEFLATE application/x-font-ttf
+AddOutputFilterByType DEFLATE application/x-font-otf
+AddOutputFilterByType DEFLATE application/x-font-opentype
+AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+AddOutputFilterByType DEFLATE font/ttf
+AddOutputFilterByType DEFLATE font/otf
+AddOutputFilterByType DEFLATE font/opentype
+# For Older Browsers Which Can't Handle Compression
+BrowserMatch ^Mozilla/4 gzip-only-text/html
+BrowserMatch ^Mozilla/4\.0[678] no-gzip
+BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+  Header append Vary User-Agent
+  SetEnvIfNoCase Request_URI .(?:gif|jpe?g|png)$ no-gzip dont-vary
+</IfModule>
+
+<ifModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file \.(html?|txt|css|js|php|pl)$
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_include mime ^text/.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+mod_gzip_item_exclude mime ^image/.*
+mod_gzip_item_include handler ^cgi-script$
+</ifModule>
+
+
+
+
+<ifmodule mod_deflate.c="">
+<filesmatch .(.jpg|.gif|.png|js|phpcss)$="">
+SetOutputFilter DEFLATE
+</filesmatch>
+</ifmodule>
+
+<IfModule mod_headers.c>
+
+<filesMatch "\.(ico|jpe?g|png|gif|swf)$">
+    Header set Cache-Control "public"
+  </filesMatch>
+  <filesMatch "\.(css)$">
+    Header set Cache-Control "public"
+  </filesMatch>
+  <filesMatch "\.(js)$">
+    Header set Cache-Control "private"
+  </filesMatch>
+  <filesMatch "\.(x?html?|php)$">
+    Header set Cache-Control "private, must-revalidate"
+  </filesMatch>
+  
+      <FilesMatch ".(js|css|xml|gz|html)$">
+    Header append Vary: Accept-Encoding
+  </FilesMatch>
+    Header append Vary Accept env=REDIRECT_accept
+ Header append Vary Accept env=REQUEST_image
+
+</IfModule>
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+</IfModule>
+
+#Habilitar Expires ExpiresActive On
+ExpiresDefault "access plus 1 year"
+ 
+#Aumentar velocidade do cache FileETag MTime Size
+ 
+#Configura 1 ano de cache e controle de cache especifico para arquivos de texto <FilesMatch "\.(js|css|ico|txt|htm|html)$">
+   ExpiresDefault A31536000
+   Header append Cache-Control "proxy-revalidate"
+</FilesMatch>
+ 
+#Configurar 1 ano de cache para arquivos de midia <FilesMatch "\.(gif|jpg|jpeg|png|swf|flv|pdf)$">
+   ExpiresDefault A31536000
+   Header append Cache-Control "public"
+</FilesMatch>
+ 
+#Ativa o Deflate para arquivos de texto <FilesMatch "\.(js|css|ico|txt|htm|html|php)$">
+   SetOutputFilter DEFLATE
+</FilesMatch>
+ 
+AddOutputFilterByType DEFLATE text/html text/plain text/xml application/x-javascript text/css text/javascript
+
+FileETag MTime Size
+<ifmodule mod_expires.c>
+
+ExpiresActive On
+ExpiresByType text/css "access 1 month"
+ExpiresByType text/html "access 1 month"
+ExpiresByType image/gif "access 1 year"
+ExpiresByType image/png "access 1 year"
+ExpiresByType image/jpg "access 1 year"
+ExpiresByType image/jpeg "access 1 year"
+ExpiresByType image/x-icon "access 1 year"
+ExpiresByType image/svg+xml "access plus 1 month"
+ExpiresByType audio/ogg "access plus 1 year"
+ExpiresByType video/mp4 "access plus 1 year"
+ExpiresByType video/ogg "access plus 1 year"
+ExpiresByType video/webm "access plus 1 year"
+ExpiresByType application/atom+xml "access plus 1 hour"
+ExpiresByType application/rss+xml "access plus 1 hour"
+ExpiresByType application/pdf "access 1 month"
+ExpiresByType application/javascript "access 1 month"
+ExpiresByType text/x-javascript "access 1 month"
+ExpiresByType text/x-component "access plus 1 month"
+ExpiresByType application/x-shockwave-flash "access 1 month"
+ExpiresByType font/opentype "access plus 1 month"
+ExpiresByType application/vnd.ms-fontobject "access plus 1 month"
+ExpiresByType application/x-font-ttf "access plus 1 month"
+ExpiresByType application/font-woff "access plus 1 month"
+ExpiresByType application/font-woff2 "access plus 1 month"
+ExpiresDefault "access 1 month"
+</ifmodule>
+
+[code lang=”xml”]
+&amp;lt;IfModule mod_deflate.c&amp;gt;
+&amp;lt;IfModule mod_setenvif.c&amp;gt;
+&amp;lt;IfModule mod_headers.c&amp;gt;
+SetEnvIfNoCase ^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$ ^((gzip|deflate)\s*,?\s*)+|[X~-]{4,13}$ HAVE_Accept-Encoding
+RequestHeader append Accept-Encoding &amp;quot;gzip,deflate&amp;quot; env=HAVE_Accept-Encoding
+&amp;lt;/IfModule&amp;gt;
+&amp;lt;/IfModule&amp;gt;
+&amp;lt;IfModule filter_module&amp;gt;
+FilterDeclare COMPRESS
+FilterProvider COMPRESS DEFLATE resp=Content-Type $text/html
+FilterProvider COMPRESS DEFLATE resp=Content-Type $text/css
+FilterProvider COMPRESS DEFLATE resp=Content-Type $text/plain
+FilterProvider COMPRESS DEFLATE resp=Content-Type $text/xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $text/x-component
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/javascript
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/json
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/xhtml+xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/rss+xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/atom+xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/vnd.ms-fontobject
+FilterProvider COMPRESS DEFLATE resp=Content-Type $image/svg+xml
+FilterProvider COMPRESS DEFLATE resp=Content-Type $image/x-icon
+FilterProvider COMPRESS DEFLATE resp=Content-Type $application/x-font-ttf
+FilterProvider COMPRESS DEFLATE resp=Content-Type $font/opentype
+FilterChain COMPRESS
+FilterProtocol COMPRESS DEFLATE change=yes;byteranges=no
+&amp;lt;/IfModule&amp;gt;
+&amp;lt;IfModule !mod_filter.c&amp;gt;
+AddOutputFilterByType DEFLATE text/html text/plain text/css application/json
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE text/xml application/xml text/x-component
+AddOutputFilterByType DEFLATE application/xhtml+xml application/rss+xml application/atom+xml
+AddOutputFilterByType DEFLATE image/x-icon image/svg+xml application/vnd.ms-fontobject application/x-font-ttf font/opentype
+&amp;lt;/IfModule&amp;gt;
+&amp;lt;/IfModule&amp;gt;
+[/code]
+
+
+
+# TN – ENABLE MOD PAGESPEED START
+# COMBINE CSS, COMPRESS IMAGES, REMOVE HTML WHITE SPACE AND COMMENTS
+<IfModule pagespeed_module>
+ModPagespeed on
+ModPagespeedEnableFilters rewrite_css,combine_css
+ModPagespeedEnableFilters recompress_images
+ModPagespeedEnableFilters convert_png_to_jpeg,convert_jpeg_to_webp
+ModPagespeedEnableFilters collapse_whitespace,remove_comments
+</IfModule>
+# TN – ENABLE MOD PAGESPEED END
+
+
+# TN – ENABLE LITESPEED CACHE START
+<IfModule LiteSpeed>
+CacheEnable public
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} ^GET|HEAD$
+RewriteCond %{HTTP_HOST} ^sample.com|sample.net|sample.org [NC]
+RewriteCond %{REQUEST_URI} !login|admin|register|post|cron
+RewriteCond %{QUERY_STRING} !nocache
+RewriteRule .* - [E=Cache-Control:max-age=300]
+</IfModule>
+# TN – ENABLE LITESPEED CACHE END
+
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|js|css|pdf)$">
+Header set Cache-Control "max-age=28800"
+</FilesMatch>
+
+
+
+<files ~ "^.*\.([Hh][Tt][Aa])">
+order allow,deny
+deny from all
+satisfy all
+</files>
+
+# INICIAR - TN Desativar assinatura do servidor #
+ServerSignature Off
+# END - TN Desativar assinatura do servidor #
+
+Options -Indexes   
+IndexIgnore *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# DO NOT REMOVE THIS LINE AND THE LINES BELOW SSL_REDIRECT:mpgames.online
+RewriteEngine on
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^mpgames.online$
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# DO NOT REMOVE THIS LINE AND THE LINES ABOVE SSL_REDIRECT:mpgames.online
+
+
+
+D
+
+
+
+
+# DO NOT REMOVE THIS LINE AND THE LINES BELOW HOTLINKID:HusuHenuHy
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?mpgames.online/.*$      [NC]
+RewriteRule .*\.(jpg|jpeg|gif|png|bmp|tiff|avi|mpeg|mpg|wma|mov|zip|rar|exe|mp3|pdf|swf|psd|txt|htm|php)$ https://mpgames.online/ [R,NC]
+# DO NOT REMOVE THIS LINE AND THE LINES ABOVE HusuHenuHy:HOTLINKID
+

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta charset=utf-8>
+<style>p.ex1{padding-top:30%}.tooltip{position:relative;display:inline-block;border-bottom:1px dotted #000}.tooltip .tooltiptext{visibility:hidden;width:120px;background-color:#000;color:#fff;text-align:center;border-radius:6px;padding:5px 0;position:absolute;z-index:1;top:100%;left:50%;margin-left:-60px}.tooltip:hover .tooltiptext{visibility:visible}input{width:100%}input[type=text]{width:100%;padding:12px 20px;margin:8px 0;box-sizing:border-box}input[type=text]:focus{border:3px solid #555}input[type=reset],input[type=submit],input[type=tooltiptext]{background-color:#4CAF50;border:none;color:#fff;padding:16px 32px;text-decoration:none;margin:4px 2px;cursor:pointer}.button{padding:15px 25px;font-size:24px;text-align:center;cursor:pointer;outline:0;color:#fff;background-color:#4CAF50;border:none;border-radius:15px;box-shadow:0 9px #999}.button:hover{background-color:#3e8e41}.button:active{background-color:#3e8e41;box-shadow:0 5px #666;transform:translateY(4px)}</style>
+</head>
+<body>
+<input placeholder="Insira seu nome de LOGIN da plataforma" id=myInput>
+<div class=tooltip>
+<button onclick=myFunction() class=button onmouseout=outFunc()>
+<span class=tooltiptext id=myTooltip>Gerar Link</span>
+Gerar Link
+</button>
+</div>
+<script>
+async function myFunction() {
+  var copyText = document.getElementById("myInput");
+  copyText.value = "https://mpgames.online//register/?ref="+copyText.value;
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  
+  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Copiado para área de transferência!";
+}
+
+async function outFunc() {
+  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Gerar Link";
+}
+</script>
+</body>
+</html>

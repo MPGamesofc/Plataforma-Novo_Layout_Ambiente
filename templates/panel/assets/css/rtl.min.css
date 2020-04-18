@@ -1,0 +1,8 @@
+body, input {
+	direction: rtl;
+	unicode-bidi: embed;
+}
+
+#login_modal .input-group, .head-t, .tabs li, .navbar-nav, .main-arcadia .input-group, .search-form {
+	direction: ltr;
+}
